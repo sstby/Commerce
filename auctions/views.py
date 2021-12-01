@@ -1,16 +1,35 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
+from django.db.models import fields
+from django.forms import widgets
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from .models import *
+from django import forms
 
-from .models import User
-
+class ListingForm(forms.ModelForm):
+    class Meta:
+        model = Listing
+        fields = ('title', 'description', 'category','price','photo','owner')
+        widgets = {
+            'owner' : widgets.HiddenInput()
+        }
 
 def index(request):
     return render(request, "auctions/index.html")
 
-
+def new_listing(request):
+    if request.method == 'POST':
+        form = ListingForm(request.POST, request.FILES)
+        print(form['owner'].value())
+        if form.is_valid():
+            form.save()
+        return HttpResponseRedirect(reverse("index"))
+    else:
+        return render(request, "auctions/new_listing.html", {
+            "form" : ListingForm(initial={'owner' : request.user.id})
+        })
 def login_view(request):
     if request.method == "POST":
 
