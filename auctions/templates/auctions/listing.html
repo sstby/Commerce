@@ -1,0 +1,44 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div class="product-details">
+        <div class="product-about">
+            <div class="product-photo">
+                <img src="{{ listing.photo_url }}">
+            </div>
+            <div class="product-info">
+                <h3>{{ listing.title }}</h3>
+                <p>Hosted by: {{ listing.owner }}</p>
+                <div class="product-price-section">
+                    <div class="row-1">
+                        <span>Starting Price: {{ listing.price }} ₴</span>
+                        <a href="">Add to Watchlist</a>
+                    </div>
+                    <div class="row-2">
+                        <span><b>Current bid: {{ current_bid }} ₴</b></span>
+                        <a href="">Bids History</a>
+                    </div>
+                    <div class="row-3">
+                        {% if user.is_authenticated %}
+                            <form id="makebid" method="post" action="{% url 'open_listing' listing.id %}">
+                                {% csrf_token %}
+                                <input type="number" min="{{ current_bid }}" placeholder="{{current_bid}}" name="bid">
+                                <input type="submit" name="make_bid" value="Make Bid!">
+                            </form>
+                        {% else %}
+                            Sign in to make a bid
+                        {% endif %}
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p>{{ current_bid }}</p>
+
+        {% for comment in comments %}
+            <div class="comment">
+                <p>{{comment.text}}</p>
+            </div>
+    </div>
+    {% endfor %}
+{% endblock %}

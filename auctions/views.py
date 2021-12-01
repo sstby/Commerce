@@ -17,7 +17,9 @@ class ListingForm(forms.ModelForm):
         }
 
 def index(request):
-    return render(request, "auctions/index.html")
+    return render(request, "auctions/index.html",{
+        'listings' : Listing.objects.all()
+    })
 
 def new_listing(request):
     if request.method == 'POST':
@@ -30,6 +32,36 @@ def new_listing(request):
         return render(request, "auctions/new_listing.html", {
             "form" : ListingForm(initial={'owner' : request.user.id})
         })
+
+def open_listing(request, id):
+
+    listing = Listing.objects.get(pk=id)
+    bids = Bid.objects.filter(listing=id)
+    current_bid = listing.price
+    print(listing.price)
+    if len(bids) > 0:
+        current_bid = max([bid.bid for bid in bids])
+
+    #Добавление ставки
+    if request.method == 'POST' and 'make_bid' in request.POST:
+        bid = request.POST['bid']
+        owner = User.objects.get(pk=request.user.id)
+        newbid = Bid.objects.create(user=owner, listing=listing, bid=bid)
+        newbid.save()
+        return HttpResponseRedirect(reverse("open_listing", args=(id,)))
+    else:
+        
+        comments = Comment.objects.filter(listing=id)
+        return render(request, "auctions/listing.html", {
+                "listing" : listing,
+                "bids" : bids,
+                "current_bid" : current_bid,
+                "comments" : comments
+            })
+
+def make_bid(request, bid):
+    pass
+
 def login_view(request):
     if request.method == "POST":
 
