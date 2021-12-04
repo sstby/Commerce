@@ -25,6 +25,9 @@
             </li>
             {% if user.is_authenticated %}
                 <li class="nav-item">
+                    <a class="nav-link" href="{% url 'watchlist' %}">Watchlist</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
                 </li>
             {% else %}
@@ -35,6 +38,9 @@
                     <a class="nav-link" href="{% url 'register' %}">Register</a>
                 </li>
             {% endif %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'categories' %}">Categories</a>
+            </li>
         </ul>
         <hr>
         {% block body %}

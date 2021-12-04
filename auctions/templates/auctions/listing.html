@@ -11,34 +11,85 @@
                 <p>Hosted by: {{ listing.owner }}</p>
                 <div class="product-price-section">
                     <div class="row-1">
-                        <span>Starting Price: {{ listing.price }} ₴</span>
-                        <a href="">Add to Watchlist</a>
+                        <span><b>Current bid: {{ current_bid }} ₴</b></span>
+                        
+                        {% if in_watchlist %}
+                            <a name="remove-from-watchlist"href="{% url 'remove_form_watchlist' listing.id %}">Remove From Watchlist</a>
+                        {% else %}
+                            <a name="add-to-watchlist"href="{% url 'add_to_watchlist' listing.id %}">Add to Watchlist</a>
+                        {% endif %}
                     </div>
                     <div class="row-2">
-                        <span><b>Current bid: {{ current_bid }} ₴</b></span>
-                        <a href="">Bids History</a>
+                        <span>Starting Price: {{ listing.price }} ₴</span>
                     </div>
                     <div class="row-3">
-                        {% if user.is_authenticated %}
-                            <form id="makebid" method="post" action="{% url 'open_listing' listing.id %}">
-                                {% csrf_token %}
-                                <input type="number" min="{{ current_bid }}" placeholder="{{current_bid}}" name="bid">
-                                <input type="submit" name="make_bid" value="Make Bid!">
-                            </form>
+                        {% if listing.state == True %}
+                            {% if user.is_authenticated %}
+
+                                {% if listing.owner_id == user.id %}
+                                    <form id="close_auction_form" method="post" action="{% url 'close_auction' listing.id %}">
+                                        {% csrf_token %}
+                                        <input type="submit" class="btn btn-primary" value="Close auction">
+                                    </form>
+                                {% else %}
+                                <form id="makebid" method="post" action="{% url 'open_listing' listing.id %}">
+                                    {% csrf_token %}
+                                    <input type="number" min="{{ current_bid }}" placeholder="{{current_bid}}" name="bid">
+                                    <input type="submit" name="make_bid" value="Make Bid!">
+                                </form>
+                                {% endif %}
+                                
+                            {% else %}
+                                Sign in to make a bid
+                            {% endif %}
                         {% else %}
-                            Sign in to make a bid
+                            <b>Auction is closed</b>
                         {% endif %}
                         
                     </div>
                 </div>
+                {% if listing.state == False and user.id == winner %}
+                    <p id="text_cl" style="text-align: center;"><b>Congratulations, you won this auction!</b></p>
+                    <script type="text/javascript">
+                        i = 0;
+                        dt = new Array("#0000A0", "#A00000", "#00A000", "#00A0A0", "#A000A0", "#A0A000");
+                        function next_cl() {
+                         i++;
+                         document.getElementById("text_cl").style.color = dt[i];
+                         if (i>dt.length) i = 0;
+                         setTimeout("next_cl()", 700);
+                        }
+                        next_cl();
+                        </script>
+                {% endif %}
             </div>
         </div>
-        <p>{{ current_bid }}</p>
-
-        {% for comment in comments %}
-            <div class="comment">
-                <p>{{comment.text}}</p>
+        <div class="product-description">
+            <h4>Description</h4>
+            <p>{{ listing.description }}</p>
+        </div>
+        <div class="product-comments">
+            <h4>Comments</h4>
+            <span>Leave your comment below</span>
+            <form id="makecomment" method="post" action="{% url 'open_listing' listing.id %}">
+                {% csrf_token %}
+                <textarea name="comment" required rows="5" style="width: 100%;"></textarea>
+                <input type="submit" name="make_comment" value="Leave a comment">
+            </form>
+            <div class="users-comments">
+                {% for comment in comments %}
+                <div class="one-comment">
+                    <div class="comment-author">
+                        <b>{{ comment.by_user }}</b>
+                        <span>on {{ comment.date }}:</span>
+                    </div>
+                    <div class="comment-text">
+                        <p>{{comment.text}}</p>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
+        </div>
     </div>
-    {% endfor %}
+    
 {% endblock %}

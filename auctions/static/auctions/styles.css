@@ -55,6 +55,7 @@ ul, li {
 
 .product-photo img {
     max-width: 100%;
+    max-height: 700px;
 }
 
 .product-info {

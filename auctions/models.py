@@ -16,8 +16,9 @@ class Listing(models.Model):
     title = models.CharField(max_length=64)
     description = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1)
-    photo = models.ImageField(upload_to="images", default="no_photo.png")
+    photo = models.ImageField(upload_to='images')#, default='images/no_foto.png'
     price = models.DecimalField(decimal_places=2, max_digits=20)
+    state = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.id} {self.title}"
@@ -38,3 +39,7 @@ class Comment(models.Model):
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE)
     text = models.TextField()
     date = models.DateTimeField(auto_now=True)
+
+class Watchlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    listings = models.ManyToManyField(Listing, blank=True)
